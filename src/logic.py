@@ -19,7 +19,7 @@ class Logic:
     
     def alreadyUsed(self,username):
         for user in self.allUsers:
-            if user.getUsername == username:
+            if user.getUsername() == username:
                 return True
         return False
     
@@ -64,6 +64,8 @@ class Logic:
             if entry.getUrl() == url:
                 return entry
         return None
+    
+  
         
          
 
