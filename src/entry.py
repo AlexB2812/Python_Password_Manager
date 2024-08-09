@@ -3,6 +3,7 @@ class Entry:
         self._password = password
         self._url = url
         self._notice = notice
+        
 
     def getPassword(self):
         return self._password

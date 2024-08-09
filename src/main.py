@@ -63,30 +63,52 @@ class Main:
             username = input("Wähle einen Benutzernamen:    ")
             if self.functions.alreadyUsed(username):
                 print("Nutzername", username, "bereits vergeben!")
+                time.sleep(2)
+                os.system('cls') 
             else:
                 break
         while True:
-            password = input("Wähle ein Passwort mit einer Mindestlänge von 10 Zeichen: / (generate) eingeben, um Passwort generieren zu lassen!:    ")
-            if password == "generate":
+            password = input("Wähle ein Passwort mit einer Mindestlänge von 10 Zeichen: / (g) eingeben, um Passwort generieren zu lassen!:    ")
+            if password == "g":
                 password = self.generatePassword()
                 print("Dein generiertes Passwort:", password)
                 choose = input("(1) Passwort nutzen (2) Vorgang wiederholen:    ")
                 if choose == "1":
                     break
-            elif password != "generate":
+                elif choose == "2":
+                    os.system('cls')     
+            elif password != "g":
                 if not self.functions.checkPasswordLength(password):
                     os.system('cls') 
                     print("Das Passwort ist zu kurz! Erneut probieren.") 
                     time.sleep(2)
                     os.system('cls') 
                 else:
-                    break
+                    os.system('cls') 
+                    passwordPoints = self.functions.getSafetyLevel(password)
+                    print("Das Passwort ist zu : " + str(passwordPoints) + " Prozent sicher")
+                    if passwordPoints >= 0 and passwordPoints <= 20:
+                        print("Das entspricht einem sehr schwachen Passwort !")
+                    elif passwordPoints > 20 and passwordPoints <= 40:
+                        print("Das entspricht einem schwachen Passwort !")
+                    elif passwordPoints > 40 and passwordPoints <= 60:
+                        print("Das entspricht einem einigermaßen sicheren Passwort !")   
+                    elif passwordPoints > 60 and passwordPoints <= 80:
+                        print("Das entspricht einem starken Passwort !")
+                    elif passwordPoints > 80 and passwordPoints <= 100:
+                        print("Das entspricht einem sehr starkem Passwort !")
+                    change = input("Drücke Enter wenn du dieses Passwort nutzen möchtest. Drücke (1) wenn du das Passwort nochmal ändern möchtest ! :    ")
+                    if change == "1":
+                        os.system('cls') 
+                        continue
+                    else:
+                        break
         os.system('cls') 
         newUser = User(username, password)
         print("Nutzername:", username, "Passwort:", password)
         self.functions.addNewUser(newUser)
         print("Du hast erfolgreich einen Account erstellt!")
-        time.sleep(4)
+        time.sleep(2)
         self.login()
 
     def openMainPage(self):
@@ -107,10 +129,15 @@ class Main:
             choice = input("Gib zum Auswählen der Option die Nummer ein:    ") 
             if choice == "1":
                 self.createEntry()
+            elif choice == "2":
+                self.searchForEntry()
+            elif choice == "3":
+                self.listAllEntrys()
             elif choice == "4":
                 self.openPersonalSite()
             elif choice == "5":
                 self.loggedUser = None
+                self.start()
                 break
             else:
                 print("Ungültige Wahl, bitte versuchen Sie es erneut.")
@@ -141,21 +168,45 @@ class Main:
                         break
 
         while True:
-            password = input("Wähle ein Passwort mit einer Mindestlänge von 10 Zeichen: / (generate) eingeben, um Passwort generieren zu lassen!   ")
-            if password == "generate":
+            password = input("Wähle ein Passwort mit einer Mindestlänge von 10 Zeichen: / (g) eingeben, um Passwort generieren zu lassen!   ")
+            if password == "g":
                 password = self.generatePassword()
                 print("Dein generiertes Passwort:", password)
                 choose = input("(1) Passwort nutzen (2) Vorgang wiederholen:    ")
                 if choose == "1":
                     os.system('cls') 
+                    self.functions.addOldPassword(password,self.loggedUser)
                     break
                 else:
                     os.system('cls') 
             elif not self.functions.checkPasswordLength(password):
                 os.system('cls')
                 print("Das Passwort ist zu kurz! Erneut probieren.")
+            elif self.functions.isOldPassword(password,self.loggedUser):
+                os.system('cls')
+                print("Du hast dieses Passwort in der Vergangenheit bereits benutzt! Erneut probieren.")
+
             else:
-                break
+                os.system('cls') 
+                passwordPoints = self.functions.getSafetyLevel(password)
+                print("Das Passwort ist zu : " + str(passwordPoints) + " Prozent sicher")
+                if passwordPoints >= 0 and passwordPoints <= 20:
+                    print("Das entspricht einem sehr schwachen Passwort !")
+                elif passwordPoints > 20 and passwordPoints <= 40:
+                    print("Das entspricht einem schwachen Passwort !")
+                elif passwordPoints > 40 and passwordPoints <= 60:
+                    print("Das entspricht einem einigermaßen sicheren Passwort !")   
+                elif passwordPoints > 60 and passwordPoints <= 80:
+                    print("Das entspricht einem starken Passwort !")
+                elif passwordPoints > 80 and passwordPoints <= 100:
+                    print("Das entspricht einem sehr starkem Passwort !")
+                change = input("Drücke Enter wenn du dieses Passwort nutzen möchtest. Drücke (1) wenn du das Passwort nochmal ändern möchtest ! :    ")
+                if change == "1":
+                    os.system('cls') 
+                    continue
+                else:
+                    self.functions.addOldPassword(password,self.loggedUser)
+                    break
 
         notice = input("Gebe hier sonstige Notizen oder Anmerkungen ein oder drücke Enter um fortzufahren:    ")
         os.system('cls') 
@@ -182,6 +233,16 @@ class Main:
             self.createEntry()  # Ermöglicht es dem Benutzer, den Eintrag zu überarbeiten
 
 
+    def searchForEntry(self):
+        searchFor = input("Gib einen Suchbegriff ein, um einen Eintrag zu finden oder drücke Enter um den Vorgang abzubrechen ! :    ")
+        for e in enumerate(self.loggedUser.myEntrys):
+            if(self.functions.goThroughEntry(e,searchFor)):
+                print("Seitenname : " + e.getUrl())
+                print("Passwort:    " + e.getPassword())
+                print("Notizen:     " + e.getNotice())
+                print("")
+                print("")
+                break
 
     def generatePassword(self):
         os.system('cls')
@@ -239,8 +300,9 @@ class Main:
                                 time.sleep(2)
                                 os.system('cls') 
                                 self.functions.updateUser(self.loggedUser)
-                                break
                                 self.openPersonalSite()
+                                break
+                                
                             elif choose == "2":
                                 self.openPersonalSite()
                         else:
@@ -258,30 +320,65 @@ class Main:
                         break
                     else:
                         print("Masterpasswort nicht korrekt. Vorgang wiederholen.")
+                        time.sleep(2)
+                        os.system('cls') 
                 while True:
-                    password = input("Wähle ein Passwort mit einer Mindestlänge von 10 Zeichen: / (generate) eingeben, um Passwort generieren zu lassen!")
-                    if password == "generate":
-                        password = self.generatePassword()
-                        print("Dein generiertes Passwort:", password)
-                        choose = input("(1) Passwort nutzen (2) Vorgang wiederholen:    ")
-                        if choose == "1":
-                            break
-                    elif password != "generate":
-                        if not self.functions.checkPasswordLength(password):
-                            os.system('cls') 
-                            print("Das Passwort ist zu kurz! Erneut probieren.")
+                    while True:
+                        password = input("Wähle ein Passwort mit einer Mindestlänge von 10 Zeichen: / (generate) eingeben, um Passwort generieren zu lassen!:    ")
+                        if password == "generate":
+                            password = self.generatePassword()
+                            print("Dein generiertes Passwort:", password)
+                            choose = input("(1) Passwort nutzen (2) Vorgang wiederholen:    ")
+                            if choose == "1":
+                                self.functions.addOldPassword(password,self.loggedUser)
+                                break
+                        elif password != "generate":
+                            if not self.functions.checkPasswordLength(password):
+                                os.system('cls') 
+                                print("Das Passwort ist zu kurz! Erneut probieren.")
+                        elif self.functions.isOldPassword(password,self.loggedUser):
+                            os.system('cls')
+                            print("Du hast dieses Passwort in der Vergangenheit bereits benutzt! Erneut probieren.")
                         else:
+                                os.system('cls') 
+                                passwordPoints = self.functions.getSafetyLevel(password)
+                                print("Das Passwort ist zu : " + str(passwordPoints) + " Prozent sicher")
+                                if passwordPoints >= 0 and passwordPoints <= 20:
+                                    print("Das entspricht einem sehr schwachen Passwort !")
+                                elif passwordPoints > 20 and passwordPoints <= 40:
+                                    print("Das entspricht einem schwachen Passwort !")
+                                elif passwordPoints > 40 and passwordPoints <= 60:
+                                    print("Das entspricht einem einigermaßen sicheren Passwort !")   
+                                elif passwordPoints > 60 and passwordPoints <= 80:
+                                    print("Das entspricht einem starken Passwort !")
+                                elif passwordPoints > 80 and passwordPoints <= 100:
+                                    print("Das entspricht einem sehr starkem Passwort !")
+                                change = input("Drücke Enter wenn du dieses Passwort nutzen möchtest. Drücke (1) wenn du das Passwort nochmal ändern möchtest ! :    ")
+                                if change == "1":
+                                    os.system('cls') 
+                                    continue
+                                else:
+                                    self.functions.addOldPassword(password,self.loggedUser)
+                                    break
+
+                    while True:
+                        password1 = input("Wiederhole das Passwort nochmals:    ")
+                        if password == password1:
+                            choose = input("Passwort wirklich ändern? (1) Ja (2) Nein:    ")
+                            if choose == "1":
+                                self.loggedUser.setPassword(password)
+                                print("Passwort erfolgreich geändert!")
+                                self.functions.updateUser(self.loggedUser)
+                                self.openPersonalSite()
+                                break
+                            elif choose == "2":
+                                self.openPersonalSite()
+                                break
+                        else:
+                            print("Passwörter stimmen nicht überein. Vorgang wiederholen ! ")
+                            time.sleep(2)
+                            os.system('cls') 
                             break
-                while True:
-                    password1 = input("Wiederhole das Passwort nochmals:    ")
-                    if password == password1:
-                        choose = input("Passwort wirklich ändern? (1) Ja (2) Nein:    ")
-                        if choose == "1":
-                            self.loggedUser.setPassword(password)
-                            print("Passwort erfolgreich geändert!")
-                            self.functions.updateUser(self.loggedUser)
-                            break
-                        
 
             elif choice == "3":
                 choose = input("Account sicher löschen? Alle Daten gehen verloren! (1) Ja (2) Nein:    ")
@@ -291,11 +388,92 @@ class Main:
                     input("Account erfolgreich gelöscht. Beliebige Taste drücken, um zur Anmeldeseite zu gelangen:    ")
                     self.start()
                     break  # Zurück zur Startseite nach Löschen
-            
+                else:
+                    self.openPersonalSite()
+                    break
 
             elif choice == "4":
+                self.openMainPage()
                 break  # Zurück zur Startseite
 
-            
+    def listAllEntrys(self):
+        os.system('cls') 
+        count = 1
+        for entry in self.loggedUser.myEntrys:
+            print(count)
+            print("Seitenname : " + entry.getUrl())
+            print("Passwort:    " + entry.getPassword())
+            print("Notizen:     " + entry.getNotice())
+            print("")
+            print("")
+            count+=1
+        print("")
+        print("")
+        while True:
+            choose = input("Wähle einen Eintrag aus, indem du hier die Eintragsnummer eingibst oder drücke Enter um den Vorgang abzubrechen:    ")     
+            if choose == "":
+                os.system('cls')
+                self.openMainPage()
+                break
+          
+            choose = int(choose)  # Wandelt choose in eine Ganzzahl um
+           
+            if choose >= 1 and choose < count:
+                choosenEntry = self.loggedUser.myEntrys[choose - 1]
+                choice = input("Möchtest du diesen Eintrag löschen (1) oder überarbeiten (2) ?    ")
+                if choice == "1":
+                    os.system('cls')
+                    self.functions.deleteEntry(choosenEntry,self.loggedUser)
+                    os.system('cls') 
+                    print("Eintrag : " + choosenEntry.getUrl() + " erfolgreich gelöscht !")
+                    time.sleep(2)
+                    os.system('cls')
+                    self.listAllEntrys()
+                if choice == "2":
+                    os.system('cls')
+                    oldUrl = entry.getUrl() 
+                    print("Hier kannst du deine Einträge bearbeiten. Drücke Enter, wenn du etwas nicht verändern möchtest !")
+                    changeUrl = input("Seitenname : " + oldUrl + " :    ")
+                    if changeUrl != "":
+                        entry.setUrl(changeUrl)
+                    while True:
+                        changePassword = input("Passwort:    " + entry.getPassword() + " (g) um Passwort zu generieren :    ")
+                        if changePassword == "g":
+                            changePassword = self.generatePassword()
+                            print("Dein generiertes Passwort:", changePassword)
+                            choose = input("(1) Passwort nutzen (2) Vorgang wiederholen:    ")
+                            if choose == "1":
+                                entry.setPassword(changePassword)
+                                break
+                        elif changePassword != "g" and changePassword != "":
+                            if not self.functions.checkPasswordLength(changePassword):
+                                os.system('cls') 
+                                print("Das Passwort ist zu kurz! Erneut probieren.")
+                            else:
+                                entry.setPassword(changePassword)
+                                break
+                        
+                    changeNotice = input("Notizen:     " + entry.getNotice() + " :    ")
+                    if changeNotice == "":
+                        emptyNotice = input("(1) wenn du die Notizen entfernen möchtest und Enter wenn du sie nicht bearbeiten möchtest :    ")
+                        if emptyNotice == "1":
+                            entry.setNotice(changeNotice)
+                    else:
+                        entry.setNotice(changeNotice)
+                    os.system('cls')
+                    self.functions.updateEntry(entry,self.loggedUser,oldUrl)
+                    print("Du hast deinen Eintrag folgendermaßen erfolgreich geändert: ")
+                    print("Seitenname : " + entry.getUrl())
+                    print("Passwort:    " + entry.getPassword())
+                    print("Notizen:     " + entry.getNotice())
+                    time.sleep(2)
+                    os.system('cls')
+                    self.listAllEntrys()
+
+
+                
+
+
+
 if __name__ == "__main__":
     Main()

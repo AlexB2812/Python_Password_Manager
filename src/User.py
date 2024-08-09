@@ -3,6 +3,7 @@ class User:
         self._username = username
         self._password = password
         self.myEntrys = []
+        self.oldPasswords = []
 
     def getUsername(self):
         return self._username
