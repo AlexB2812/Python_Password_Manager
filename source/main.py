@@ -242,7 +242,10 @@ class Main:
                 print("Notizen:     " + e.getNotice())
                 print("")
                 print("")
+                print("test")
                 break
+            else:
+                print("kein eintrag")
 
     def generatePassword(self):
         os.system('cls')

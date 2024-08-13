@@ -32,6 +32,7 @@ class Logic:
         
     def addNewUser(self,newUser):
         self.allUsers.append(newUser)
+       
 
     def deleteUser(self,userToDelete):
             for user in self.allUsers:
@@ -52,8 +53,8 @@ class Logic:
         return newPassword in loggedUser.oldPasswords
 
     
-    def addEntry(self,Entry,loggedUser):
-        loggedUser.myEntrys.append(Entry)
+    def addEntry(self,entry,loggedUser):
+        loggedUser.myEntrys.append(entry)
 
     def deleteEntry(self,entryToDelete,loggedUser):
         for entry in loggedUser.myEntrys:
@@ -69,12 +70,13 @@ class Logic:
 
     
 
-    def goThroughEntry(entry,searchedFor):
-        splittedNotice = entry.getUrl().split()
-        if(entry.getUrl()== searchedFor or entry.getPassword() == searchedFor or searchedFor in splittedNotice):
+    def goThroughEntry(self, entry,searchedFor):
+        if searchedFor in entry.getUrl() or searchedFor in entry.getPassword() or searchedFor in entry.getNotice():
             return True
         else:
             return False
+
+
         
     def generatePassword(self,length,strongness): 
         generatedPassword = ''
@@ -158,6 +160,12 @@ class Logic:
     
     def containsSymbol(self,password):
         return any(char in self.symbolsList for char in password)
+    
+    #def saveUsers(self):
+      #  with open('C:\Users\debernal\Documents\allUsers.txt', 'w') as file:
+          #  for user in self.allUsers:
+             #   file.write(f"Password: {user.getPassword()}, URL: {user.getUrl()}, Notice: {user.getNotice()}\n")
+
     
     
 
